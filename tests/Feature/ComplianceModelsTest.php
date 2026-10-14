@@ -112,7 +112,7 @@ it('stores a cookie consent as JSON, one per user, and releases it with the vers
     $consent = UserCookieConsent::create([
         'user_id' => $user->id, 'cookie_policy_version_id' => $version->id,
         'consent' => ['necessary' => true, 'groups' => ['ads' => false], 'cookies' => ['ad_id' => false]],
-        'ip_hash' => hash('sha256', '203.0.113.9'), 'consented_at' => now(),
+        'ip_hash' => hash('sha256', 'visitor-address'), 'consented_at' => now(),
     ])->refresh();
 
     expect($consent->consent['groups'])->toBe(['ads' => false])
