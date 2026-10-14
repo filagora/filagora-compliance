@@ -7,6 +7,7 @@ All notable changes to this package are documented here. The format follows
 
 ### Added
 
+- Access goes through core's `AccessChecker`, so `filagora-entitlements` is optional (a suggestion, not a requirement): the three abilities come from core's `GateAbilities`, and the module requires only `core`. Requires `filagora/filagora-core` `^0.2.1`.
 - `CookieConsent` service: enabled groups with their cookies, the active policy version, a user's stored choice, `normalize()` (required groups forced on; a cookie's own choice, then its group's, then the default), `save()` (one row per user, hashed address and user agent) and `requiresReconsent()`. Setting `enable_cookie_consent_workflow`.
 - `PolicyAcceptance` service: active version (latest published, cached by id for 60 seconds), `hasAcknowledgedActivePolicy()`, `stateFor()`, `accept()`. Setting `enforce_gdpr`.
 - `CookiePolicyVersions` (day-numbered versions) and, when `filagora/filagora-cms` is installed, a listener that creates a cookie policy version when the page named by the setting `cookie_policy_page` is published.

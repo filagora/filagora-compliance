@@ -13,8 +13,8 @@ it('registers on a panel', function () {
     expect($panel->hasPlugin('filagora-compliance'))->toBeTrue();
 });
 
-it('registers itself as a module that needs core and entitlements', function () {
-    expect(app(ModuleRegistry::class)->get('compliance')->requires)->toBe(['core', 'entitlements']);
+it('registers itself as a module that needs only core', function () {
+    expect(app(ModuleRegistry::class)->get('compliance')->requires)->toBe(['core']);
 });
 
 it('defines the three screen abilities', function () {
