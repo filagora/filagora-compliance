@@ -17,8 +17,8 @@ it('registers itself as a module that needs only core', function () {
     expect(app(ModuleRegistry::class)->get('compliance')->requires)->toBe(['core']);
 });
 
-it('defines the three screen abilities', function () {
-    foreach (['privacy_requests', 'policies', 'audit'] as $ability) {
+it('defines the six screen abilities', function () {
+    foreach (['privacy_requests.view', 'privacy_requests', 'erase', 'cookie_policies', 'privacy_policies', 'audit'] as $ability) {
         expect(Gate::has("filagora.compliance.{$ability}"))->toBeTrue();
     }
 });
