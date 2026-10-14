@@ -54,7 +54,14 @@ Cookie consent, policy versions and privacy requests (export and erasure) for Fi
   user columns the default does not know (it blanks `name` and `email`, empties the verification
   date and makes the password unusable).
 
-Still to come: retention pruning and the Filament screens.
+- **Retention**: `php artisan filagora:compliance:prune` (scheduled daily at 02:15; `--dry-run`
+  reports without deleting) runs every `RetentionRule` registered with core's
+  `RetentionRuleRegistry`, so each package says what it keeps and for how long. This package's
+  rule deletes settled privacy requests after the windows in `retention.privacy_requests`
+  (never one on legal hold) and removes export files 30 days after they were made. A rule that
+  fails is reported, mailed to `dsar_request_email`, and does not stop the others.
+
+Still to come: the Filament screens.
 
 ## Install
 

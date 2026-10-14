@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Filagora\Compliance;
 
 use Filagora\Cms\Events\CmsPagePublished;
+use Filagora\Compliance\Console\PruneCommand;
 use Filagora\Compliance\Contracts\UserAnonymizer;
 use Filagora\Compliance\Events\PrivacyReplySent;
 use Filagora\Compliance\Events\PrivacyRequestStatusChanged;
@@ -12,6 +13,7 @@ use Filagora\Compliance\Events\PrivacyRequestSubmitted;
 use Filagora\Compliance\Listeners\SendPrivacyMail;
 use Filagora\Compliance\Listeners\VersionCookiePolicyOnPagePublished;
 use Filagora\Compliance\Privacy\ComplianceDataContributor;
+use Filagora\Compliance\Privacy\PrivacyRequestRetention;
 use Filagora\Compliance\Services\CookieConsent;
 use Filagora\Compliance\Services\CookiePolicyVersions;
 use Filagora\Compliance\Services\PersonalDataErasure;
@@ -26,6 +28,7 @@ use Filagora\Core\Modules\ModuleRegistry;
 use Filagora\Core\Navigation\NavigationGroupDefinition;
 use Filagora\Core\Navigation\NavigationGroupRegistry;
 use Filagora\Core\Privacy\PrivacyContributorRegistry;
+use Filagora\Core\Privacy\RetentionRuleRegistry;
 use Filagora\Core\Schema\PackageSchema;
 use Filagora\Core\Schema\SchemaRegistry;
 use Filagora\Core\Settings\SettingDefinition;
@@ -34,6 +37,7 @@ use Filagora\Core\Settings\SettingType;
 use Filagora\Core\Support\GateAbilities;
 use Filagora\Entitlements\Registry\Definition;
 use Filagora\Entitlements\Registry\EntitlementRegistry;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
@@ -69,6 +73,13 @@ class ComplianceServiceProvider extends ServiceProvider
         $this->defineGates();
         $this->declareSettings();
         $this->app->make(PrivacyContributorRegistry::class)->register(new ComplianceDataContributor);
+        $this->app->make(RetentionRuleRegistry::class)->register(new PrivacyRequestRetention);
+
+        $this->app->booted(function (): void {
+            if (config('filagora-compliance.schedule.enabled', true)) {
+                $this->app->make(Schedule::class)->command('filagora:compliance:prune')->dailyAt((string) config('filagora-compliance.schedule.daily_at', '02:15'));
+            }
+        });
 
         Event::listen(PrivacyRequestSubmitted::class, [SendPrivacyMail::class, 'submitted']);
         Event::listen(PrivacyRequestStatusChanged::class, [SendPrivacyMail::class, 'statusChanged']);
@@ -83,6 +94,8 @@ class ComplianceServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
 
         if ($this->app->runningInConsole()) {
+            $this->commands([PruneCommand::class]);
+
             $this->publishes([
                 __DIR__.'/../config/filagora-compliance.php' => config_path('filagora-compliance.php'),
             ], 'filagora-compliance-config');
