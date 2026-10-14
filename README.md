@@ -1,11 +1,18 @@
 # Filagora Compliance
 
-Cookie consent, policy versions and privacy requests (export and erasure) for Filagora.
+Cookie consent, policy versions and privacy requests (export and erasure) for Filagora, as a
+Laravel 13 / Filament 5 plugin. Requires
+[`filagora/filagora-core`](https://github.com/filagora/filagora-core). Who may use the screens is
+answered by core's `AccessChecker`: install
+[`filagora/filagora-entitlements`](https://github.com/filagora/filagora-entitlements) and it is
+answered from entitlement grants, or bind your own checker. With neither, the screens deny
+everyone.
 
-> **In progress, unreleased.** The package is at `0.1`: the API may change between `0.x` minor
-> versions. Design: see the Filagora planning notes.
+> The package is at `0.1`: the API may change between `0.x` minor versions. There is no
+> frontend: it is models, services, events, commands and staff screens, and you build the public
+> forms (cookie banner, privacy request form) over the services.
 
-## What exists so far
+## What it does
 
 - **Tables and models** for cookie consent (groups, cookies, policy versions, each user's choice),
   the privacy policy (versions, each user's acceptance) and privacy requests (with legal hold
@@ -71,7 +78,21 @@ Cookie consent, policy versions and privacy requests (export and erasure) for Fi
 
 ## Install
 
-Not yet released.
+```bash
+composer require filagora/filagora-compliance filagora/filagora-entitlements   # entitlements is optional
+php artisan migrate
+php artisan filagora:entitlements:sync   # with entitlements: creates the ability keys
+```
+
+```php
+->plugin(\Filagora\Compliance\FilagoraCompliancePlugin::make())
+```
+
+Then set the `dsar_request_email` setting (who is told about new requests), schedule your
+application's `schedule:run` (the daily prune is registered by the package), and read
+`config/filagora-compliance.php` for the links in the mail, where exports are written and the
+retention windows. To start from a database that already holds these tables, run
+`php artisan filagora:adopt` instead of `migrate`.
 
 ## Testing
 
