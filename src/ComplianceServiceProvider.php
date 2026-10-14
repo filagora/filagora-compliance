@@ -8,6 +8,8 @@ use Filagora\Core\Modules\Module;
 use Filagora\Core\Modules\ModuleRegistry;
 use Filagora\Core\Navigation\NavigationGroupDefinition;
 use Filagora\Core\Navigation\NavigationGroupRegistry;
+use Filagora\Core\Schema\PackageSchema;
+use Filagora\Core\Schema\SchemaRegistry;
 use Filagora\Entitlements\Registry\Definition;
 use Filagora\Entitlements\Registry\EntitlementRegistry;
 use Filagora\Entitlements\Services\AuthorizationService;
@@ -26,6 +28,10 @@ class ComplianceServiceProvider extends ServiceProvider
     {
         $this->app->make(ModuleRegistry::class)->register(
             new Module('compliance', 'Filagora Compliance', 'filagora/filagora-compliance', requires: ['core', 'entitlements']),
+        );
+
+        $this->app->make(SchemaRegistry::class)->register(
+            PackageSchema::fromFile('compliance', __DIR__.'/../database/schema.php', __DIR__.'/../database/migrations'),
         );
 
         $this->registerNavigationGroup();
