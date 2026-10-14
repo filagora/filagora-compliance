@@ -4,16 +4,27 @@ declare(strict_types=1);
 
 namespace Filagora\Compliance;
 
+use Filagora\Cms\Events\CmsPagePublished;
+use Filagora\Compliance\Listeners\VersionCookiePolicyOnPagePublished;
+use Filagora\Compliance\Services\CookieConsent;
+use Filagora\Compliance\Services\CookiePolicyVersions;
+use Filagora\Compliance\Services\PolicyAcceptance;
+use Filagora\Compliance\Support\Models;
 use Filagora\Core\Modules\Module;
 use Filagora\Core\Modules\ModuleRegistry;
 use Filagora\Core\Navigation\NavigationGroupDefinition;
 use Filagora\Core\Navigation\NavigationGroupRegistry;
 use Filagora\Core\Schema\PackageSchema;
 use Filagora\Core\Schema\SchemaRegistry;
+use Filagora\Core\Settings\SettingDefinition;
+use Filagora\Core\Settings\SettingsRegistry;
+use Filagora\Core\Settings\SettingType;
 use Filagora\Entitlements\Registry\Definition;
 use Filagora\Entitlements\Registry\EntitlementRegistry;
 use Filagora\Entitlements\Services\AuthorizationService;
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
@@ -22,6 +33,10 @@ class ComplianceServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->mergeConfigFrom(__DIR__.'/../config/filagora-compliance.php', 'filagora-compliance');
+
+        $this->app->singleton(CookieConsent::class);
+        $this->app->singleton(PolicyAcceptance::class);
+        $this->app->singleton(CookiePolicyVersions::class);
     }
 
     public function boot(): void
@@ -37,6 +52,12 @@ class ComplianceServiceProvider extends ServiceProvider
         $this->registerNavigationGroup();
         $this->declareEntitlements();
         $this->defineGates();
+        $this->declareSettings();
+        $this->forgetCachesOnChange();
+
+        if (class_exists(CmsPagePublished::class)) {
+            Event::listen(CmsPagePublished::class, VersionCookiePolicyOnPagePublished::class);
+        }
 
         $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'filagora-compliance');
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
@@ -78,5 +99,64 @@ class ComplianceServiceProvider extends ServiceProvider
 
             Gate::define($ability, fn (?Authenticatable $user): bool => $this->app->make(AuthorizationService::class)->allows($user, $entitlement));
         }
+    }
+
+    /**
+     * The settings the services read, with their defaults (keys and types match the live site).
+     */
+    private function declareSettings(): void
+    {
+        $settings = $this->app->make(SettingsRegistry::class);
+
+        $settings->define(new SettingDefinition(
+            CookieConsent::SETTING,
+            SettingType::Boolean,
+            true,
+            label: 'Enable Cookie Consent Workflow',
+            description: 'When off, no cookie consent is asked for or stored.',
+        ));
+
+        $settings->define(new SettingDefinition(
+            PolicyAcceptance::SETTING,
+            SettingType::Boolean,
+            true,
+            label: 'Enforce GDPR Workflow',
+            description: 'When off, users are not asked to accept the privacy policy and privacy requests are closed.',
+        ));
+
+        $settings->define(new SettingDefinition(
+            'dsar_request_email',
+            SettingType::String,
+            '',
+            label: 'DSAR Request Notification Email',
+            description: 'Staff address told about each new privacy request. Leave empty to tell no one.',
+        ));
+
+        $settings->define(new SettingDefinition(
+            VersionCookiePolicyOnPagePublished::SETTING,
+            SettingType::Page,
+            '/cookie-policy',
+            label: 'Cookie Policy Page',
+            description: 'A route beginning with / or a CMS page slug. Publishing this page creates a new cookie policy version.',
+        ));
+
+        $settings->define(new SettingDefinition(
+            'privacy_page',
+            SettingType::Page,
+            '/privacy',
+            label: 'Privacy Policy Page',
+            description: 'A route beginning with / or a CMS page slug.',
+        ));
+    }
+
+    /**
+     * The cached id of the active privacy policy version is forgotten as soon as a version changes.
+     */
+    private function forgetCachesOnChange(): void
+    {
+        $forgetActive = static fn () => Cache::forget(PolicyAcceptance::activeCacheKey());
+
+        Models::class('privacy_policy_version')::saved($forgetActive);
+        Models::class('privacy_policy_version')::deleted($forgetActive);
     }
 }
