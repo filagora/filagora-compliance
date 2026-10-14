@@ -5,15 +5,27 @@ declare(strict_types=1);
 namespace Filagora\Compliance;
 
 use Filagora\Cms\Events\CmsPagePublished;
+use Filagora\Compliance\Contracts\UserAnonymizer;
+use Filagora\Compliance\Events\PrivacyReplySent;
+use Filagora\Compliance\Events\PrivacyRequestStatusChanged;
+use Filagora\Compliance\Events\PrivacyRequestSubmitted;
+use Filagora\Compliance\Listeners\SendPrivacyMail;
 use Filagora\Compliance\Listeners\VersionCookiePolicyOnPagePublished;
+use Filagora\Compliance\Privacy\ComplianceDataContributor;
 use Filagora\Compliance\Services\CookieConsent;
 use Filagora\Compliance\Services\CookiePolicyVersions;
+use Filagora\Compliance\Services\PersonalDataErasure;
+use Filagora\Compliance\Services\PersonalDataExport;
 use Filagora\Compliance\Services\PolicyAcceptance;
+use Filagora\Compliance\Services\PrivacyAudit;
+use Filagora\Compliance\Services\PrivacyRequests;
+use Filagora\Compliance\Support\ConfiguredColumnsAnonymizer;
 use Filagora\Compliance\Support\Models;
 use Filagora\Core\Modules\Module;
 use Filagora\Core\Modules\ModuleRegistry;
 use Filagora\Core\Navigation\NavigationGroupDefinition;
 use Filagora\Core\Navigation\NavigationGroupRegistry;
+use Filagora\Core\Privacy\PrivacyContributorRegistry;
 use Filagora\Core\Schema\PackageSchema;
 use Filagora\Core\Schema\SchemaRegistry;
 use Filagora\Core\Settings\SettingDefinition;
@@ -35,6 +47,11 @@ class ComplianceServiceProvider extends ServiceProvider
         $this->app->singleton(CookieConsent::class);
         $this->app->singleton(PolicyAcceptance::class);
         $this->app->singleton(CookiePolicyVersions::class);
+        $this->app->singleton(PrivacyAudit::class);
+        $this->app->singleton(PersonalDataExport::class);
+        $this->app->singleton(PersonalDataErasure::class);
+        $this->app->singleton(PrivacyRequests::class);
+        $this->app->bindIf(UserAnonymizer::class, ConfiguredColumnsAnonymizer::class);
     }
 
     public function boot(): void
@@ -51,6 +68,11 @@ class ComplianceServiceProvider extends ServiceProvider
         $this->declareEntitlements();
         $this->defineGates();
         $this->declareSettings();
+        $this->app->make(PrivacyContributorRegistry::class)->register(new ComplianceDataContributor);
+
+        Event::listen(PrivacyRequestSubmitted::class, [SendPrivacyMail::class, 'submitted']);
+        Event::listen(PrivacyRequestStatusChanged::class, [SendPrivacyMail::class, 'statusChanged']);
+        Event::listen(PrivacyReplySent::class, [SendPrivacyMail::class, 'replied']);
         $this->forgetCachesOnChange();
 
         if (class_exists(CmsPagePublished::class)) {

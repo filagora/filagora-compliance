@@ -49,4 +49,68 @@ return [
         'filagora.compliance.audit' => 'filagora.compliance.audit',
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Mail
+    |--------------------------------------------------------------------------
+    |
+    | Whether the default listeners email the requester and the DSAR address (setting
+    | `dsar_request_email`) about privacy request events. Turn it off to send your own.
+    |
+    */
+    'mail' => [
+        'enabled' => true,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Links in the mail
+    |--------------------------------------------------------------------------
+    |
+    | Named routes of your application. Any left empty (or not defined) is simply left out of
+    | the mail. `requester` is the page where a person sees their requests; `staff_request`
+    | opens a request for staff (it receives `privacyRequest`); `export_download` is a signed
+    | route that serves an export file (it receives `privacyRequest`).
+    |
+    */
+    'routes' => [
+        'requester' => null,
+        'staff_request' => null,
+        'export_download' => null,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Exports
+    |--------------------------------------------------------------------------
+    |
+    | Where export files are written, and which of the user's own columns head the export. Other
+    | sections come from whatever registered a PrivacyContributor.
+    |
+    */
+    'exports' => [
+        'disk' => env('FILAGORA_COMPLIANCE_EXPORTS_DISK', 'local'),
+        'directory' => 'exports/privacy',
+        'download_link_minutes' => (int) env('FILAGORA_COMPLIANCE_EXPORT_LINK_MINUTES', 10080),
+        'user_attributes' => ['id', 'name', 'email', 'email_verified_at', 'created_at', 'updated_at'],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Erasure
+    |--------------------------------------------------------------------------
+    |
+    | What the default anonymiser puts in the user's columns (`{id}` is the user's id; columns the
+    | table does not have are skipped). Bind your own Filagora\Compliance\Contracts\UserAnonymizer
+    | to cover columns of your own.
+    |
+    */
+    'anonymize' => [
+        'attributes' => [
+            'name' => 'Deleted User {id}',
+            'email' => 'deleted-user-{id}@anonymized.invalid',
+            'email_verified_at' => null,
+        ],
+    ],
+
 ];
