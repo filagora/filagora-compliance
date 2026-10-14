@@ -2,11 +2,18 @@
 
 Cookie consent, policy versions and privacy requests (export and erasure) for Filagora.
 
-> **Planned, not yet built.** There is no code, no release and no Packagist package yet. It is
-> part of [Filagora](https://github.com/filagora/filagora-core), a family of Laravel 13 / Filament 5
-> packages; the first ones available are
-> [`filagora/filagora-core`](https://github.com/filagora/filagora-core) and
-> [`filagora/filagora-entitlements`](https://github.com/filagora/filagora-entitlements).
+> **In progress, unreleased.** The package is at `0.1`: the API may change between `0.x` minor
+> versions. Design: see the Filagora planning notes.
+
+## Install
+
+Not yet released.
+
+## Testing
+
+```bash
+composer test
+```
 
 ## Licence
 
