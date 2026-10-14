@@ -39,13 +39,17 @@ return [
     | Gate abilities
     |--------------------------------------------------------------------------
     |
-    | Maps each ability that guards a compliance screen to the entitlement that allows
-    | it. Point an ability at your own entitlement key to use your own keys.
+    | Maps each ability that guards a compliance screen or action to the key that allows it:
+    | seeing privacy requests, handling them, erasing a person, managing the cookie policy and
+    | consent groups, managing the privacy policy versions, and reading the operation audit. Point an ability at your own entitlement key to use your own keys.
     |
     */
     'gates' => [
+        'filagora.compliance.privacy_requests.view' => 'filagora.compliance.privacy_requests.view',
         'filagora.compliance.privacy_requests' => 'filagora.compliance.privacy_requests',
-        'filagora.compliance.policies' => 'filagora.compliance.policies',
+        'filagora.compliance.erase' => 'filagora.compliance.erase',
+        'filagora.compliance.cookie_policies' => 'filagora.compliance.cookie_policies',
+        'filagora.compliance.privacy_policies' => 'filagora.compliance.privacy_policies',
         'filagora.compliance.audit' => 'filagora.compliance.audit',
     ],
 
@@ -138,6 +142,21 @@ return [
     'schedule' => [
         'enabled' => env('FILAGORA_COMPLIANCE_SCHEDULE_ENABLED', true),
         'daily_at' => env('FILAGORA_COMPLIANCE_SCHEDULE_AT', '02:15'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | KPIs
+    |--------------------------------------------------------------------------
+    |
+    | The dashboard widget: the deadline for fulfilling a request, how long a new request may
+    | wait for a first review, and how far back fulfilled requests are counted.
+    |
+    */
+    'kpis' => [
+        'sla_days' => 30,
+        'overdue_review_days' => 7,
+        'sla_window_days' => 90,
     ],
 
 ];

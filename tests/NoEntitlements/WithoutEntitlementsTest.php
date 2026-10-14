@@ -19,12 +19,12 @@ it('runs with no entitlements package loaded, needing only core', function () {
         ->and(app()->bound(EntitlementRegistry::class))->toBeFalse();
 });
 
-it('follows the host\'s own checker for the three screen abilities', function () {
+it('follows the host\'s own checker for the screen abilities', function () {
     $user = TestUser::make('Host');
-    HostAccess::$granted[$user->id] = ['filagora.compliance.policies'];
+    HostAccess::$granted[$user->id] = ['filagora.compliance.cookie_policies'];
 
-    expect(Gate::forUser($user)->allows('filagora.compliance.policies'))->toBeTrue()
+    expect(Gate::forUser($user)->allows('filagora.compliance.cookie_policies'))->toBeTrue()
         ->and(Gate::forUser($user)->allows('filagora.compliance.privacy_requests'))->toBeFalse()
         ->and(Gate::forUser($user)->allows('filagora.compliance.audit'))->toBeFalse()
-        ->and(Gate::forUser(null)->allows('filagora.compliance.policies'))->toBeFalse();
+        ->and(Gate::forUser(null)->allows('filagora.compliance.cookie_policies'))->toBeFalse();
 });

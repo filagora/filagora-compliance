@@ -61,7 +61,13 @@ Cookie consent, policy versions and privacy requests (export and erasure) for Fi
   (never one on legal hold) and removes export files 30 days after they were made. A rule that
   fails is reported, mailed to `dsar_request_email`, and does not stop the others.
 
-Still to come: the Filament screens.
+- **Filament screens** (add `FilagoraCompliancePlugin::make()` to your panel), each behind its own
+  ability, mapped to keys in `filagora-compliance.gates` (entitlement keys when entitlements is
+  installed): privacy requests (`.privacy_requests.view` to look, `.privacy_requests` to act,
+  `.erase` to erase a person or delete a request), cookie groups and cookie policy versions
+  (`.cookie_policies`), privacy policy versions (`.privacy_policies`) and the operation audit
+  (`.audit`). A request's page offers every step of its handling; the privacy KPIs
+  (`kpis` in the config) can sit on your dashboard through `PrivacyKpiOverview`.
 
 ## Install
 

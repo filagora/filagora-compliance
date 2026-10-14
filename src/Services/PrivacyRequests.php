@@ -113,6 +113,17 @@ class PrivacyRequests
     }
 
     /**
+     * Add a line to the staff notes, dated. Nothing is sent.
+     */
+    public function addNote(PrivacyRequest $request, string $note): PrivacyRequest
+    {
+        $this->appendNote($request, trim($note));
+        $request->save();
+
+        return $request;
+    }
+
+    /**
      * Put a request on legal hold: it is not pruned, and cannot be fulfilled until released.
      */
     public function hold(PrivacyRequest $request, string $reason, ?Model $actor = null): PrivacyRequest
