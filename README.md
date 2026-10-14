@@ -37,8 +37,24 @@ Cookie consent, policy versions and privacy requests (export and erasure) for Fi
       ->middleware('auth');
   ```
 
-Still to come: the privacy request workflow (export, erasure, mail), retention pruning, and the
-Filament screens.
+- **Privacy requests** (`PrivacyRequests`): a person submits an export or erasure request (or
+  rectification, restriction, objection, which staff handle by hand); staff review, hold, reply,
+  reject, or fulfil it. `fulfilExport()` writes one JSON file with a section for the user and
+  one for every `PrivacyContributor` any package or your application registered with core's
+  `PrivacyContributorRegistry`; `fulfilErasure()` has each contributor erase its data and then
+  your `UserAnonymizer` replaces who the user is, all in one transaction. A request on legal
+  hold cannot be fulfilled. Every staff action is written to the operation audit, and the
+  requester (and the address in the `dsar_request_email` setting) are emailed by events you can
+  replace: set `mail.enabled` to false and listen to `PrivacyRequestSubmitted`,
+  `PrivacyRequestStatusChanged` and `PrivacyReplySent` yourself. The mail's links are named routes
+  of yours under `routes` in the config (a signed download route for exports, the page where a
+  person sees their requests); any you leave empty is left out.
+- **What erasure covers is up to what registers.** Register a contributor for your own tables
+  (`app(PrivacyContributorRegistry::class)->register(...)`) and bind your own `UserAnonymizer` for
+  user columns the default does not know (it blanks `name` and `email`, empties the verification
+  date and makes the password unusable).
+
+Still to come: retention pruning and the Filament screens.
 
 ## Install
 
