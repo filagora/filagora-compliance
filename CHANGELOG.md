@@ -5,6 +5,10 @@ All notable changes to this package are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-10-14
+
+First release.
+
 ### Added
 
 - **Filament screens** (`FilagoraCompliancePlugin`, in a "Privacy and compliance" group): **Privacy requests** (list with filters, rejected hidden by default; one request with actions to change status, hold and release, reply, add a note, generate the export, erase the person, reject, download the export and open its audit), **Cookie groups** (with a cookies relation manager), **Cookie policy versions**, **Privacy policy versions**, a read-only **Privacy operation audit** (filterable by request) and a **KPI widget** (fulfilled within the deadline, open requests, waiting for review; `kpis` config). Every action goes through `PrivacyRequests`, so it is audited and the person told, and a refusal is shown instead of failing.
