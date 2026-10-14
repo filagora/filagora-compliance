@@ -113,4 +113,31 @@ return [
         ],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Retention
+    |--------------------------------------------------------------------------
+    |
+    | How long this package keeps privacy requests, in days after they were settled (zero keeps
+    | them for ever). Requests on legal hold are never deleted. Export files are deleted
+    | `delete_export_after_days` after the request was fulfilled. Other packages register their
+    | own rules with core's RetentionRuleRegistry; all run in `filagora:compliance:prune`, which is
+    | scheduled daily unless `schedule.enabled` is false.
+    |
+    */
+    'retention' => [
+        'privacy_requests' => [
+            'received_stale_days' => 365,
+            'in_review_stale_days' => 730,
+            'fulfilled_days' => 1095,
+            'rejected_days' => 1095,
+            'delete_export_after_days' => 30,
+        ],
+    ],
+
+    'schedule' => [
+        'enabled' => env('FILAGORA_COMPLIANCE_SCHEDULE_ENABLED', true),
+        'daily_at' => env('FILAGORA_COMPLIANCE_SCHEDULE_AT', '02:15'),
+    ],
+
 ];
