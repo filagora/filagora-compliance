@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Storage;
 function oldRequest(string $status, array $dates, array $attributes = []): PrivacyRequest
 {
     $request = PrivacyRequest::create(array_merge(['user_id' => TestUser::make('Old')->id, 'type' => 'export', 'status' => $status], $attributes))->refresh();
-    $request->newQuery()->whereKey($request->id)->toBase()->update(array_map(fn ($days) => $days === null ? null : now()->subDays($days), $dates));
+    $request->newQuery()->whereKey($request->id)->toBase()->update(array_map(fn ($days) => $days === null ? null : now()->subDays($days)->setTime(12, 0), $dates));
 
     return $request;
 }
