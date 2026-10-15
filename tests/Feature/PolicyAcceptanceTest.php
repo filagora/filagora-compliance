@@ -36,7 +36,7 @@ it('has nothing to accept when enforcement is off or there is no active version'
 });
 
 it('takes the latest published active version as the one to accept', function () {
-    privacyVersion('1', ['published_at' => now()->subDays(2)]);
+    privacyVersion('1', ['published_at' => now()->subDays(2)->setTime(12, 0)]);
     $newest = privacyVersion('2', ['published_at' => now()->subDay()]);
     privacyVersion('3', ['is_active' => false, 'published_at' => now()]);
 

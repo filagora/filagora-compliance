@@ -334,7 +334,7 @@ it('publishes privacy policy versions, which can stay active together', function
 // ------------------------------------------------------------------ KPIs
 
 it('counts what is open, late and fulfilled in time', function () {
-    $ago = fn (int $days) => now()->subDays($days);
+    $ago = fn (int $days) => now()->subDays($days)->setTime(12, 0);
     pendingRequest('export', ['status' => 'received', 'requested_at' => $ago(10)]);
     pendingRequest('erasure', ['status' => 'in_review', 'requested_at' => $ago(40), 'reviewed_at' => $ago(39)]);
     pendingRequest('rectification', ['status' => 'received', 'requested_at' => $ago(40), 'is_on_hold' => true]);
