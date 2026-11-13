@@ -14,6 +14,39 @@ everyone.
 
 ## What it provides
 
+### Overview
+
+Cookie consent, policy versions and privacy requests (export and erasure) for Filagora.
+
+### Tables
+
+`cookie_consent_groups`, `cookie_consent_cookies`, `cookie_policy_versions`, `user_cookie_consents`, `privacy_policy_versions`, `user_privacy_policy_acceptances`, `privacy_requests`, `privacy_operation_audits`, prefixed `filagora_` by default. A site that already has them can run `php artisan filagora:adopt` instead of migrating.
+
+### Commands
+
+| Command | What it does |
+| --- | --- |
+| `filagora:compliance:prune {--dry-run}` | Delete records that are past their retention period, as every installed package defines it. |
+
+### Events
+
+- `PrivacyReplySent`: Staff replied to the person who made a request.
+- `PrivacyRequestStatusChanged`: A request moved from one status to another.
+- `PrivacyRequestSubmitted`: A person made a privacy request.
+
+### Access
+
+| Ability | Entitlement key |
+| --- | --- |
+| `filagora.compliance.privacy_requests.view` | `filagora.compliance.privacy_requests.view` |
+| `filagora.compliance.privacy_requests` | `filagora.compliance.privacy_requests` |
+| `filagora.compliance.erase` | `filagora.compliance.erase` |
+| `filagora.compliance.cookie_policies` | `filagora.compliance.cookie_policies` |
+| `filagora.compliance.privacy_policies` | `filagora.compliance.privacy_policies` |
+| `filagora.compliance.audit` | `filagora.compliance.audit` |
+
+### Using it
+
 - **Tables and models** for cookie consent (groups, cookies, policy versions, each user's choice),
   the privacy policy (versions, each user's acceptance) and privacy requests (with legal hold
   and an operation audit). They match the site this package was extracted from, so
