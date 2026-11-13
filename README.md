@@ -12,7 +12,7 @@ everyone.
 > frontend: it is models, services, events, commands and staff screens, and you build the public
 > forms (cookie banner, privacy request form) over the services.
 
-## What it does
+## What it provides
 
 - **Tables and models** for cookie consent (groups, cookies, policy versions, each user's choice),
   the privacy policy (versions, each user's acceptance) and privacy requests (with legal hold
@@ -76,6 +76,10 @@ everyone.
   (`.audit`). A request's page offers every step of its handling; the privacy KPIs
   (`kpis` in the config) can sit on your dashboard through `PrivacyKpiOverview`.
 
+## Requirements
+
+PHP 8.4, Laravel 13 and Filament 5. Tested against MariaDB 11.4. Requires [`filagora/filagora-core`](https://github.com/filagora/filagora-core).
+
 ## Install
 
 ```bash
@@ -94,12 +98,31 @@ application's `schedule:run` (the daily prune is registered by the package), and
 retention windows. To start from a database that already holds these tables, run
 `php artisan filagora:adopt` instead of `migrate`.
 
+## Configuration
+
+`config/filagora-compliance.php` is merged with the host's copy, so list only what
+differs. Publish it with `php artisan vendor:publish --tag=filagora-compliance-config`.
+
+## Extending
+
+Extend through documented contracts, events and registries. Anything not documented
+is `@internal`.
+
 ## Testing
 
 ```bash
 composer test
 ```
 
+Tests run against a real MariaDB, never SQLite, so engine behaviour (FULLTEXT,
+`ONLY_FULL_GROUP_BY`, collation) matches production. Host and credentials come from
+your environment; the database is always named `testing`, never your development one.
+
+## Local development (DDEV)
+
+`.ddev/` is included. `ddev start` creates both `db` and `testing` (run `ddev restart` once
+if `testing` is missing), then `ddev exec vendor/bin/pest`.
+
 ## Licence
 
-MIT.
+MIT. See [LICENSE](LICENSE).
